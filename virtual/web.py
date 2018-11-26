@@ -29,6 +29,10 @@ def make_catalog(args):
             nodata=args.get("nodata"),
             linear_stretch=args.get("linearStretch"),
             resample=args.get("resample"),
+            dst_min=args.get("min"),
+            dst_max=args.get("max"),
+            force_cast=args.get("force_cast"),
+            to_vis=args.get("to_vis")
         )
     except Exception as e:
         LOG.warn(e.message)

@@ -14,11 +14,16 @@ LOG = logging.getLogger(__name__)
 
 class VirtualCatalog(Catalog):
 
-    def __init__(self, uri, rgb=None, nodata=None, linear_stretch=None, resample=None):
+    def __init__(self, uri, rgb=None, nodata=None, linear_stretch=None, resample=None, 
+        dst_max=None, dst_min=None, force_cast=None, to_vis=None):
         self._uri = uri
         self._rgb = rgb
         self._nodata = nodata
         self._linear_stretch = linear_stretch
+        self._dst_min = dst_min
+        self._dst_max = dst_max
+        self._force_cast = force_cast
+        self._to_vis = to_vis
         try:
             # test whether provided resampling method is valid
             Resampling[resample]
@@ -43,7 +48,7 @@ class VirtualCatalog(Catalog):
                 min_val = src.get_tag_item("STATISTICS_MINIMUM", bidx=band + 1)
                 max_val = src.get_tag_item("STATISTICS_MAXIMUM", bidx=band + 1)
                 mean_val = src.get_tag_item("STATISTICS_MEAN", bidx=band + 1)
-
+                
                 if min_val is not None:
                     self._meta["values"][band]["min"] = float(min_val)
                 elif global_min is not None:
@@ -87,6 +92,20 @@ class VirtualCatalog(Catalog):
 
         if self._resample is not None:
             recipes["resample"] = self._resample
+
+        if self._to_vis is not None:
+            recipes["dst_min"] = 0
+            recipes["dst_max"] = 255
+            recipes["force_cast"] = 'int8'
+
+        if self._dst_min is not None:
+            recipes["dst_min"] = self._dst_min
+        
+        if self._dst_max is not None:
+            recipes["dst_max"] = self._dst_max
+
+        if self._force_cast is not None:
+            recipes["force_cast"] = self._force_cast
 
         yield Source(
             url=self._uri,
