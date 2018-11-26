@@ -61,7 +61,8 @@ $ curl "http://localhost:8000/bounds?url=https%3A%2F%2Fs3-us-west-2.amazonaws.co
 * `rgb` - Source bands to map to RGB channels. Defaults to `1,2,3`.
 * `nodata` - a custom NODATA value.
 * `linearStretch` - whether to stretch output to match min/max values present in
-  the source. Useful for raw sensor output, e.g. earth observation (EO) data.
+  the source. Useful for raw sensor output, e.g. earth observation (EO) data. Valid
+  values: `per_band` (default if anything is passed), `global`
 * `resample` - Specify a custom resampling method (e.g. for discrete values).
   Valid values (from `rasterio.enums.Resampling`): `nearest`, `bilinear`,
   `cubic`, `cubic_spline`, `lanczos`, `average`, `mode`, `gauss`, `max`, `min`,
