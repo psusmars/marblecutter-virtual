@@ -26,3 +26,12 @@ clean:
 
 server:
 	docker build --build-arg http_proxy=$(http_proxy) -t quay.io/mojodna/marblecutter-virtual .
+
+run:
+	docker run -p 8000:8000 \
+	 -v `pwd`:/opt/marblecutter \
+	 --entrypoint="/bin/bash" -i -t \
+	 --user=root \
+	 marblecuttervirtual_marblecutter:latest
+	#gunicorn -k gevent -b 0.0.0.0 --access-logfile - virtual.web:app
+	#cd marblecutter/ && pip install -e . && cd .. && gunicorn -k gevent -b 0.0.0.0 --access-logfile - virtual.web:app
