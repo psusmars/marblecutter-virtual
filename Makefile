@@ -32,6 +32,7 @@ run:
 	 -v `pwd`:/opt/marblecutter \
 	 --entrypoint="/bin/bash" -i -t \
 	 --user=root \
+	 --rm \
 	 marblecuttervirtual_marblecutter:latest
 	#gunicorn -k gevent -b 0.0.0.0 --access-logfile - virtual.web:app
 	#cd marblecutter/ && pip install -e . && cd .. && gunicorn -k gevent -b 0.0.0.0 --access-logfile - virtual.web:app
