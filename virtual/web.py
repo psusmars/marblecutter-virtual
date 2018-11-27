@@ -3,6 +3,9 @@ from __future__ import absolute_import
 
 import logging
 
+import sys
+sys.path.insert(1, "/var/task/.pypath")
+
 from cachetools.func import lru_cache
 from flask import Markup, jsonify, render_template, request, url_for
 from marblecutter import NoCatalogAvailable, tiling
