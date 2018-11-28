@@ -12,7 +12,7 @@
   },
   "hooks": {
     "build": "make deps/deps.tgz && tar zxf deps/deps.tgz",
-    "clean": "rm -rf .pypath/ lib/ lib64/ share/"
+    "clean": "/bin/rm -rf .pypath/ lib/ lib64/ share/"
   },
   "proxy": {
     "command": "python -S app.py",
