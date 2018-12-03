@@ -84,7 +84,7 @@ class VirtualCatalog(Catalog):
             recipes["nodata"] = self._nodata
 
         if self._linear_stretch is not None:
-            valid_values = ["per_band", "global"]
+            valid_values = ["per_band", "global", "if_needed"]
             if self._linear_stretch not in valid_values:
                 self._linear_stretch = valid_values[0]
                 LOG.debug("No specific linear_stretch passed, using: {0}".format(self._linear_stretch))
