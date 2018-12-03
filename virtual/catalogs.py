@@ -96,7 +96,7 @@ class VirtualCatalog(Catalog):
         if self._to_vis is not None:
             recipes["dst_min"] = 0
             recipes["dst_max"] = 255
-            recipes["force_cast"] = 'int8'
+            recipes["force_cast"] = 'uint8'
 
         if self._dst_min is not None:
             recipes["dst_min"] = self._dst_min

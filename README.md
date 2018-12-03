@@ -73,7 +73,7 @@ $ curl "http://localhost:8000/bounds?url=https%3A%2F%2Fs3-us-west-2.amazonaws.co
 * `force_cast` - force the casting of the data into a specific type of data right
   before rendering, useful for taking a float image and turning it into bytes 
   (e.g. `int8`). Any value from the [numpy datatypes](https://docs.scipy.org/doc/numpy-1.13.0/user/basics.types.html) is valid.
-* `to_vis` - sets `min` to `0`, `max` to `255` and `force_cast` to `int8`, if any of the
+* `to_vis` - sets `min` to `0`, `max` to `255` and `force_cast` to `uint8`, if any of the
   above is set, those will trump this
 
 `@2x` can be added to the filename (after the `{y}` coordinate) to request
