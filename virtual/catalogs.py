@@ -38,10 +38,23 @@ class VirtualCatalog(Catalog):
                 Bounds(src.bounds, src.crs), (src.height, src.width)
             )
             approximate_zoom = get_zoom(max(self._resolution), op=math.ceil)
-
+            
             global_min = src.get_tag_item("TIFFTAG_MINSAMPLEVALUE")
             global_max = src.get_tag_item("TIFFTAG_MAXSAMPLEVALUE")
 
+            band_order = src.get_tag_item("BAND_ORDER")
+            if str(self._rgb).lower() == "metadata" and band_order is not None:
+                band_order = band_order.split(',')
+                def get_band_from_band_order(band_order, band_name, fallback):
+                    if band_name in band_order:
+                        return str(band_order.index(band_name) + 1)
+                    else:
+                        return fallback
+                red_band = get_band_from_band_order(band_order, "RED", "1")
+                green_band = get_band_from_band_order(band_order, "GRE", "2")
+                blue_band = get_band_from_band_order(band_order, "BLU", "3")
+                self._rgb = ",".join([red_band, green_band, blue_band])
+            
             for band in xrange(0, src.count):
                 self._meta["values"] = self._meta.get("values", {})
                 self._meta["values"][band] = {}
