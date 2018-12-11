@@ -67,7 +67,7 @@ def meta(prefix=None):
     with app.app_context():
         meta["tiles"] = [
             "{}{{z}}/{{x}}/{{y}}?{}".format(
-                url_for("meta", prefix=make_prefix(), _external=True, _scheme=request.scheme),
+                url_for("meta", prefix=make_prefix(), _external=True, _scheme=""),
                 urllib.urlencode(request.args),
             )
         ]
