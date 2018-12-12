@@ -61,6 +61,7 @@ class VirtualCatalog(Catalog):
                 min_val = src.get_tag_item("STATISTICS_MINIMUM", bidx=band + 1)
                 max_val = src.get_tag_item("STATISTICS_MAXIMUM", bidx=band + 1)
                 mean_val = src.get_tag_item("STATISTICS_MEAN", bidx=band + 1)
+                stddev_val = src.get_tag_item("STATISTICS_STDDEV", bidx=band + 1)
                 
                 if min_val is not None:
                     self._meta["values"][band]["min"] = float(min_val)
@@ -74,6 +75,9 @@ class VirtualCatalog(Catalog):
 
                 if mean_val is not None:
                     self._meta["values"][band]["mean"] = float(mean_val)
+
+                if stddev_val is not None:
+                    self._meta["values"][band]["stddev"] = float(stddev_val)
 
         self._center = [
             (self._bounds[0] + self.bounds[2]) / 2,
