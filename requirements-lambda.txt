@@ -6,3 +6,4 @@ haversine == 0.4.5
 mercantile >= 0.10.0
 numpy == 1.13.1
 Pillow == 4.1.1
+itsdangerous
