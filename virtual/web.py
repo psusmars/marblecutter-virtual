@@ -62,6 +62,7 @@ def meta(prefix=None):
         "minzoom": catalog.minzoom,
         "name": catalog.name,
         "tilejson": "2.1.0",
+        "metadata": catalog.src_meta
     }
 
     with app.app_context():

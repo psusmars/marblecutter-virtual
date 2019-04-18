@@ -31,8 +31,10 @@ class VirtualCatalog(Catalog):
         except KeyError:
             self._resample = None
         self._meta = {}
+        self.src_meta = {}
 
         with get_source(self._uri) as src:
+            self.src_meta = src.tags()
             self._bounds = warp.transform_bounds(src.crs, WGS84_CRS, *src.bounds)
             self._resolution = get_resolution_in_meters(
                 Bounds(src.bounds, src.crs), (src.height, src.width)
@@ -62,7 +64,9 @@ class VirtualCatalog(Catalog):
                     else:
                         self._rgb = "1,1,1"
             
+            self.src_meta["bands"] = {}
             for band in xrange(0, src.count):
+                self.src_meta["bands"][band] = src.tags(bidx=band+1)
                 self._meta["values"] = self._meta.get("values", {})
                 self._meta["values"][band] = {}
                 min_val = src.get_tag_item("STATISTICS_MINIMUM", bidx=band + 1)
