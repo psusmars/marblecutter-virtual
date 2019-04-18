@@ -49,6 +49,7 @@ class VirtualCatalog(Catalog):
 
         with get_source(self._uri) as src:
             self.src_meta = snake_case_to_camel_case_keys_of_dict(src.tags())
+            self.src_meta["bandCount"] = src.count
             self._bounds = warp.transform_bounds(src.crs, WGS84_CRS, *src.bounds)
             self._resolution = get_resolution_in_meters(
                 Bounds(src.bounds, src.crs), (src.height, src.width)
