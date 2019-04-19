@@ -27,23 +27,35 @@ def snake_case_to_camel_case_keys_of_dict(old_dict):
     return new_dict
 
 class VirtualCatalog(Catalog):
+    _rgb = None
+    _nodata = None
+    _linear_stretch = None
+    _resample = None
 
     def __init__(self, uri, rgb=None, nodata=None, linear_stretch=None, resample=None, 
         dst_max=None, dst_min=None, force_cast=None, to_vis=None):
         self._uri = uri
-        self._rgb = rgb
-        self._nodata = nodata
-        self._linear_stretch = linear_stretch
         self._dst_min = dst_min
         self._dst_max = dst_max
         self._force_cast = force_cast
         self._to_vis = to_vis
+
+        if rgb:
+            self._rgb = rgb
+
+        if nodata:
+            self._nodata = nodata
+
+        if linear_stretch:
+            self._linear_stretch = linear_stretch
+        
         try:
             # test whether provided resampling method is valid
             Resampling[resample]
             self._resample = resample
         except KeyError:
             self._resample = None
+
         self._meta = {}
         self.src_meta = {}
 
@@ -84,7 +96,7 @@ class VirtualCatalog(Catalog):
             band_assignments = band_order
             if band_order is None:
                 band_assignments = range(0, src.count)
-            for band in xrange(0, src.count):
+            for band in range(0, src.count):
                 self.src_meta["bandMetadata"][band_assignments[band]] = snake_case_to_camel_case_keys_of_dict(src.tags(bidx=band+1))
                 self._meta["values"] = self._meta.get("values", {})
                 self._meta["values"][band] = {}

@@ -5,4 +5,8 @@ cachetools ~= 2.0.0
 https://github.com/psusmars/marblecutter/archive/05ab684.tar.gz#egg=marblecutter[web]
 rasterio[s3] ~= 1.0 --no-binary rasterio
 numpy == 1.13.1
-requests ~= 2.18.3
+#requests ~= 2.18.3 - may no longer be needed
+flask-cors
+serverless-wsgi
+# temporary workaround for https://github.com/mapbox/rasterio/issues/1651
+mock
