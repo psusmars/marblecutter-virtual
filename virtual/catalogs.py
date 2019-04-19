@@ -72,9 +72,10 @@ class VirtualCatalog(Catalog):
             global_max = src.get_tag_item("TIFFTAG_MAXSAMPLEVALUE")
 
             band_order = src.get_tag_item("BAND_ORDER")
+            if band_order is not None:
+                band_order = band_order.split(',')
             if str(self._rgb).lower() == "metadata":
                 if band_order is not None:
-                    band_order = band_order.split(',')
                     def get_band_from_band_order(band_order, band_name, fallback):
                         if band_name in band_order:
                             return str(band_order.index(band_name) + 1)
