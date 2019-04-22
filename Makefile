@@ -6,7 +6,8 @@ deploy: packaged.yaml
 		--template-file $< \
 		--stack-name $(STACK_NAME) \
 		--capabilities CAPABILITY_IAM \
-		--parameter-overrides DomainName=$(DOMAIN_NAME)
+		--parameter-overrides DomainName=$(DOMAIN_NAME) \
+		--parameter-overrides AcmCertificateArn=$(ACM_ARN)
 
 packaged.yaml: .aws-sam/build/template.yaml
 	sam package --s3-bucket $(S3_BUCKET) --output-template-file $@

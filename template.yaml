@@ -94,9 +94,9 @@ Resources:
             Cookies:
               Forward: none
           ViewerProtocolPolicy: allow-all
-        # ViewerCertificate:
-        #   AcmCertificateArn: !Ref AcmCertificateArn
-        #   SslSupportMethod: sni-only
+        ViewerCertificate:
+          AcmCertificateArn: !Ref AcmCertificateArn
+          SslSupportMethod: sni-only
 
 Outputs:
   MarblecutterVirtualApi:
