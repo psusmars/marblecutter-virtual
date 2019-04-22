@@ -12,7 +12,7 @@ from flask_cors import CORS
 from marblecutter import NoCatalogAvailable, tiling
 from marblecutter.formats.optimal import Optimal
 from marblecutter.transformations import Image
-from marblecutter.web import bp, url_for
+from marblecutter.web import bp, url_for, get_host
 from mercantile import Tile
 
 try:
@@ -36,6 +36,10 @@ app.register_blueprint(bp)
 app.url_map.strict_slashes = False
 CORS(app, send_wildcard=True)
 
+def url_for_meta_in_tilejson(request):
+    return "{}{{z}}/{{x}}/{{y}}?{}".format(
+        url_for("meta", _external=True, _scheme=""), urlencode(request.args)
+    ).replace(request.host, get_host())
 
 @lru_cache()
 def make_catalog(args):
@@ -77,14 +81,11 @@ def meta():
         "tilejson": "2.1.0",
         "metadata": catalog.src_meta,
         "tiles": [
-            "{}{{z}}/{{x}}/{{y}}?{}".format(
-                url_for("meta", _external=True, _scheme=""), urlencode(request.args)
-            )
+            url_for_meta_in_tilejson(request)
         ],
     }
 
     return jsonify(meta)
-
 
 @app.route("/bounds/")
 def bounds():
