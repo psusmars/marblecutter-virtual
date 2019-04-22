@@ -8,6 +8,7 @@ import serverless_wsgi
 
 logging.getLogger("rasterio._base").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def handler(signum, frame):
@@ -43,6 +44,8 @@ def handle(event, context):
     event["headers"]["Host"] = event["headers"].get(
         "X-Forwarded-Host", event["headers"].get("Host")
     )
+    
+    logger.info("Headers: {}".format(event["headers"]))
 
     app.wsgi_app = TimeoutMiddleware(
         app.wsgi_app, context.get_remaining_time_in_millis() - 50
