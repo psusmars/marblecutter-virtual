@@ -25,11 +25,12 @@ Globals:
       AllowMethods: "'*'"
       AllowHeaders: "'*'"
       AllowOrigin: "'*'"
-
     # Send/receive binary data through the APIs
     BinaryMediaTypes:
-      # This is equivalent to */* when deployed
+      # */* breaks on redeployes
       - "*~1*"
+      - image~1*
+      - application/octet-stream
 
 Resources:
   # Lambda function
@@ -42,7 +43,7 @@ Resources:
       Runtime: python3.6
       Environment:
         Variables:
-          AWS_REQUEST_PAYER: requester
+          #AWS_REQUEST_PAYER: requester
           CPL_TMPDIR: /tmp
           GDAL_CACHEMAX: 75%
           GDAL_DATA: /var/task/rasterio/gdal_data
@@ -56,17 +57,61 @@ Resources:
       MemorySize: 1536
       Events:
         # API Gateway routes
-        ProxyApiRoot:
-          Type: Api
-          Properties:
-            Path: /
-            Method: ANY
+      Events:
         ProxyApiGreedy:
-          Type: Api
           Properties:
-            Path: /{proxy+}
+            RestApiId: !Ref MarblecutterVirtualAPIDef
             Method: ANY
-
+            Path: /{proxy+}
+          Type: Api
+        ProxyApiRoot:
+          Properties:
+            RestApiId: !Ref MarblecutterVirtualAPIDef
+            Method: ANY
+            Path: /
+          Type: Api
+  # The following two sections are a work around for the API Gateway not properly 
+  # handling content, it should be allowed to do CONVERT_TO_BINARY
+  # Resolution taken from: https://github.com/awslabs/serverless-application-model/issues/566
+  # Waiting for https://github.com/awslabs/serverless-application-model/issues/553 to fix
+  MarblecutterVirtualFunctionCatchAllPermissionProdMarblecutterVirtualAPIDef:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref MarblecutterVirtualFunction
+      SourceArn: !Sub
+        - arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${__ApiId__}/${__Stage__}/*/*
+        - __Stage__: Prod
+          __ApiId__: !Ref MarblecutterVirtualAPIDef
+      Principal: apigateway.amazonaws.com
+      Action: lambda:invokeFunction
+  MarblecutterVirtualAPIDef:
+    Properties:
+      Name: marblecutter-virtual-api
+      StageName: Prod
+      BinaryMediaTypes:
+        - '*~1*'
+        - image~1*
+        - application/octet-stream
+      Cors:
+        AllowHeaders: '''*'''
+        AllowMethods: '''*'''
+        AllowOrigin: '''*'''
+      EndpointConfiguration: REGIONAL
+      DefinitionBody:
+        swagger: '2.0'
+        schemes:
+          - https
+        paths:
+          "/": {}
+          "/{proxy+}":
+            x-amazon-apigateway-any-method:
+              x-amazon-apigateway-integration:
+                type: aws_proxy
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MarblecutterVirtualFunction.Arn}/invocations
+                httpMethod: POST
+                contentHandling: CONVERT_TO_BINARY
+              responses: {}
+    Type: AWS::Serverless::Api
   # CloudFront Distribution
   CFDistribution:
     Type: AWS::CloudFront::Distribution
@@ -80,13 +125,13 @@ Resources:
         Origins:
           -
             Id: MarblecutterVirtualApi
-            DomainName: !Sub "${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com"
+            DomainName: !Sub "${MarblecutterVirtualAPIDef}.execute-api.${AWS::Region}.amazonaws.com"
             CustomOriginConfig:
               OriginProtocolPolicy: https-only
             OriginCustomHeaders:
                 - HeaderName: X-Forwarded-Host
                   HeaderValue: !Ref DomainName
-            OriginPath: !Sub "/${ServerlessRestApi.Stage}"
+            OriginPath: !Sub "/${MarblecutterVirtualAPIDef.Stage}"
         DefaultCacheBehavior:
           TargetOriginId: MarblecutterVirtualApi
           ForwardedValues:
@@ -101,7 +146,7 @@ Resources:
 Outputs:
   MarblecutterVirtualApi:
     Description: "API Gateway endpoint URL for for marblecutter-virtual"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/${ServerlessRestApi.Stage}"
+    Value: !Sub "https://${MarblecutterVirtualAPIDef}.execute-api.${AWS::Region}.amazonaws.com/${MarblecutterVirtualAPIDef.Stage}"
 
   MarblecutterVirtualFunction:
     Description: "marblecutter-virtual Lambda Function ARN"
