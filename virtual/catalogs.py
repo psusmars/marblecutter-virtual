@@ -126,7 +126,7 @@ class VirtualCatalog(Catalog):
         recipes = {"imagery": True}
 
         if self._rgb is not None:
-            recipes["rgb_bands"] = map(int, self._rgb.split(","))
+            recipes["rgb_bands"] = list(map(int, self._rgb.split(",")))
 
         if self._nodata is not None:
             recipes["nodata"] = self._nodata
