@@ -8,6 +8,7 @@ sys.path.insert(1, "/var/task/.pypath")
 
 from cachetools.func import lru_cache
 from flask import Markup, jsonify, render_template, request, url_for
+from flask_cors import CORS
 from marblecutter import NoCatalogAvailable, tiling
 from marblecutter.formats.optimal import Optimal
 from marblecutter.transformations import Image
@@ -21,6 +22,7 @@ LOG = logging.getLogger(__name__)
 
 IMAGE_TRANSFORMATION = Image()
 IMAGE_FORMAT = Optimal()
+CORS(app, send_wildcard=True)
 
 
 @lru_cache()

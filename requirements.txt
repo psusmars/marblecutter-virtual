@@ -6,3 +6,4 @@ https://github.com/psusmars/marblecutter/archive/05ab684.tar.gz#egg=marblecutter
 rasterio[s3] ~= 1.0 --no-binary rasterio
 numpy == 1.13.1
 requests ~= 2.18.3
+flask-cors ~= 3.0.7
