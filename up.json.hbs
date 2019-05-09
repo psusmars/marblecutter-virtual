@@ -11,6 +11,7 @@
     }
   },
   "hooks": {
+    "prebuild": "/bin/rm -f out.zip",
     "build": "make deps/deps.tgz && tar zxf deps/deps.tgz",
     "clean": "/bin/rm -rf .pypath/ lib/ lib64/ share/"
   },

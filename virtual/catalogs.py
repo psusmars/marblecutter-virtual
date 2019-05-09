@@ -11,6 +11,20 @@ from rasterio.enums import Resampling
 
 LOG = logging.getLogger(__name__)
 
+def to_camel_case(snake_str):
+    components = snake_str.split('_')
+    # We capitalize the first letter of each component except the first one
+    # with the 'title' method and join them together.
+    return components[0].lower() + ''.join(x.title() for x in components[1:])
+
+# Camel cases all top level keys in the dictionary, does not handle
+# sub dictionaries
+def snake_case_to_camel_case_keys_of_dict(old_dict):
+    kv = old_dict.items()
+    new_dict = {}
+    for k, v in kv:
+        new_dict[to_camel_case(k)] = v
+    return new_dict
 
 class VirtualCatalog(Catalog):
 
@@ -31,8 +45,11 @@ class VirtualCatalog(Catalog):
         except KeyError:
             self._resample = None
         self._meta = {}
+        self.src_meta = {}
 
         with get_source(self._uri) as src:
+            self.src_meta = snake_case_to_camel_case_keys_of_dict(src.tags())
+            self.src_meta["bandCount"] = src.count
             self._bounds = warp.transform_bounds(src.crs, WGS84_CRS, *src.bounds)
             self._resolution = get_resolution_in_meters(
                 Bounds(src.bounds, src.crs), (src.height, src.width)
@@ -43,9 +60,10 @@ class VirtualCatalog(Catalog):
             global_max = src.get_tag_item("TIFFTAG_MAXSAMPLEVALUE")
 
             band_order = src.get_tag_item("BAND_ORDER")
+            if band_order is not None:
+                band_order = band_order.split(',')
             if str(self._rgb).lower() == "metadata":
                 if band_order is not None:
-                    band_order = band_order.split(',')
                     def get_band_from_band_order(band_order, band_name, fallback):
                         if band_name in band_order:
                             return str(band_order.index(band_name) + 1)
@@ -62,7 +80,13 @@ class VirtualCatalog(Catalog):
                     else:
                         self._rgb = "1,1,1"
             
+            self.src_meta["bandMetadata"] = {}
+            # FarmLens specific
+            band_assignments = band_order
+            if band_order is None:
+                band_assignments = range(0, src.count)
             for band in xrange(0, src.count):
+                self.src_meta["bandMetadata"][band_assignments[band]] = snake_case_to_camel_case_keys_of_dict(src.tags(bidx=band+1))
                 self._meta["values"] = self._meta.get("values", {})
                 self._meta["values"][band] = {}
                 min_val = src.get_tag_item("STATISTICS_MINIMUM", bidx=band + 1)
@@ -102,7 +126,7 @@ class VirtualCatalog(Catalog):
         recipes = {"imagery": True}
 
         if self._rgb is not None:
-            recipes["rgb_bands"] = map(int, self._rgb.split(","))
+            recipes["rgb_bands"] = list(map(int, self._rgb.split(",")))
 
         if self._nodata is not None:
             recipes["nodata"] = self._nodata
